@@ -138,30 +138,77 @@
     });
 
     // Cargar resultados en vivo
-    async function loadResults() {
-      const { data, error } = await supabase.from("votes").select("*");
+    // Cargar resultados en vivo
+async function loadResults() {
+  const { data, error } = await supabase.from("votes").select("*");
 
-      if (error) {
-        resultsList.innerHTML = "<li>Error al cargar resultados</li>";
-        console.error(error);
-        return;
-      }
+  if (error) {
+    resultsList.innerHTML = "<li>Error al cargar resultados</li>";
+    console.error(error);
+    return;
+  }
 
-      const scores = {};
+  const scores = {};
 
-      data.forEach(({ country, score }) => {
-        scores[country] = (scores[country] || 0) + score;
-      });
+  data.forEach(({ country, score }) => {
+    scores[country] = (scores[country] || 0) + score;
+  });
 
-      const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+  const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
 
-      resultsList.innerHTML = "";
-      sorted.forEach(([country, total]) => {
-        const li = document.createElement("li");
-        li.textContent = `${country}: ${total} punto(s)`;
-        resultsList.appendChild(li);
-      });
-    }
+  resultsList.innerHTML = "";
+  sorted.forEach(([country, total]) => {
+    const li = document.createElement("li");
+
+    // Crear un elemento de imagen con la bandera
+    const flag = document.createElement("span");
+    flag.className = `flag-icon flag-icon-${getCountryCode(country)}`;
+    flag.classList.add("flag-icon");
+
+    // Crear un span para el texto
+    const span = document.createElement("span");
+    span.textContent = `${country}: ${total} punto(s)`;
+
+    li.appendChild(flag);
+    li.appendChild(span);
+    resultsList.appendChild(li);
+  });
+}
+
+// Función para convertir el nombre del país en su código de bandera
+function getCountryCode(country) {
+  const countryCodes = {
+    "Noruega": "no",
+    "Luxemburgo": "lu",
+    "Estonia": "ee",
+    "Israel": "il",
+    "Lituania": "lt",
+    "España": "es",
+    "Ucrania": "ua",
+    "Reino Unido": "gb",
+    "Austria": "at",
+    "Islandia": "is",
+    "Letonia": "lv",
+    "Países Bajos": "nl",
+    "Finlandia": "fi",
+    "Italia": "it",
+    "Polonia": "pl",
+    "Alemania": "de",
+    "Grecia": "gr",
+    "Armenia": "am",
+    "Suiza": "ch",
+    "Malta": "mt",
+    "Portugal": "pt",
+    "Dinamarca": "dk",
+    "Suecia": "se",
+    "Francia": "fr",
+    "San Marino": "sm",
+    "Albania": "al",
+  };
+
+  return countryCodes[country.toUpperCase()] || "unknown";
+}
+
 
     setInterval(loadResults, 5000);
     loadResults();
