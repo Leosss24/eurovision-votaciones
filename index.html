@@ -5,27 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Votaciones Eurovisión 2025</title>
   <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icon-css/css/flag-icon.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
   <div class="container">
     <h1>Votaciones Eurovisión 2025</h1>
 
-    <!-- Sección de login -->
-    <div id="loginSection">
-      <h2>Introduce tu nombre</h2>
-      <input type="text" id="name" placeholder="Tu nombre" required />
-      <button id="loginBtn">Iniciar sesión</button>
-    </div>
+    <form id="voteForm">
+      <label for="name">Tu nombre:</label>
+      <input type="text" id="name" name="name" required />
 
-    <!-- Sección de votación -->
-    <div id="voteSection" style="display:none;">
-      <form id="voteForm">
-        <label for="country">Elige un país:</label>
-        <select id="country" name="country" required>
-          <option value="" disabled selected>Selecciona un país</option>
-          <option value="Noruega">Noruega</option>
+      <label for="country">Elige un país:</label>
+      <select id="country" name="country" required>
+        <option value="" disabled selected>Selecciona un país</option>
+        <!-- Aquí van todos los países de Eurovisión -->
+		<option value="Noruega">Noruega</option>
           <option value="Luxemburgo">Luxemburgo</option>
           <option value="Estonia">Estonia</option>
           <option value="Israel">Israel</option>
@@ -51,165 +45,98 @@
           <option value="Francia">Francia</option>
           <option value="San Marino">San Marino</option>
           <option value="Albania">Albania</option>
-        </select>
+        <!-- ...otros países... -->
+      </select>
 
-        <label for="score">Puntuación (1 a 5):</label>
-        <input type="number" id="score" name="score" min="1" max="5" required />
+      <label for="song_score">Puntuación de la Canción (1 a 5):</label>
+      <input type="number" id="song_score" name="song_score" min="1" max="5" required />
 
-        <button type="submit">Votar</button>
-      </form>
-    </div>
+      <label for="stage_score">Puntuación de la Escenografía (1 a 5):</label>
+      <input type="number" id="stage_score" name="stage_score" min="1" max="5" required />
+
+      <label for="choreography_score">Puntuación de la Coreografía (1 a 5):</label>
+      <input type="number" id="choreography_score" name="choreography_score" min="1" max="5" required />
+
+      <label for="outfit_score">Puntuación del Outfit (1 a 5):</label>
+      <input type="number" id="outfit_score" name="outfit_score" min="1" max="5" required />
+
+      <button type="submit">Votar</button>
+    </form>
 
     <h2>Resultados en vivo</h2>
     <ul id="resultsList">Cargando resultados...</ul>
   </div>
 
   <script>
-    // ✅ Configura tus credenciales de Supabase aquí:
+    // Configura tus credenciales de Supabase aquí:
     const SUPABASE_URL = 'https://gwkkycjcrsnvrooyxxrl.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd3a2t5Y2pjcnNudnJvb3l4eHJsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc0OTczMjYsImV4cCI6MjA2MzA3MzMyNn0.WsQHZdJqu79pHZWoC8Qd-pULhh6534GFBe6blJyXRp4';
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     const voteForm = document.getElementById("voteForm");
     const resultsList = document.getElementById("resultsList");
-    const loginBtn = document.getElementById("loginBtn");
-    const loginSection = document.getElementById("loginSection");
-    const voteSection = document.getElementById("voteSection");
 
-    let currentUser = null;
-
-    // Manejo de login (inicio de sesión por nombre)
-    loginBtn.addEventListener("click", async () => {
-      const name = document.getElementById("name").value.trim();
-      if (!name) {
-        alert("Por favor, introduce tu nombre.");
-        return;
-      }
-
-      currentUser = { name };
-
-      // Ocultar la sección de login y mostrar la de votación
-      loginSection.style.display = "none";
-      voteSection.style.display = "block";
-
-      loadResults();
-    });
-
-    // Enviar voto
     voteForm.addEventListener("submit", async (e) => {
       e.preventDefault();
 
-      if (!currentUser) {
-        alert("Debes iniciar sesión.");
-        return;
-      }
-
+      const name = document.getElementById("name").value.trim();
       const country = document.getElementById("country").value;
-      const score = parseInt(document.getElementById("score").value);
+      const songScore = parseInt(document.getElementById("song_score").value);
+      const stageScore = parseInt(document.getElementById("stage_score").value);
+      const choreographyScore = parseInt(document.getElementById("choreography_score").value);
+      const outfitScore = parseInt(document.getElementById("outfit_score").value);
 
-      // Verificar si el usuario ya votó por ese país
-      const { data: existingVotes, error: selectError } = await supabase
-        .from("votes")
-        .select("*")
-        .eq("name", currentUser.name)
-        .eq("country", country);
-
-      if (selectError) {
-        alert("Error al verificar votos anteriores.");
+      // Verificación de puntuaciones
+      if (!name || !country || isNaN(songScore) || isNaN(stageScore) || isNaN(choreographyScore) || isNaN(outfitScore)) {
+        alert("Datos inválidos");
         return;
       }
 
-      if (existingVotes.length > 0) {
-        alert("Ya has votado por este país.");
-        return;
-      }
-
-      // Insertar el nuevo voto
-      const { error } = await supabase.from("votes").insert([
-        { name: currentUser.name, country, score }
-      ]);
+      // Insertar datos en la base de datos de Supabase
+      const { error } = await supabase.from("votes").insert([{
+        name, 
+        country, 
+        song_score: songScore, 
+        stage_score: stageScore, 
+        choreography_score: choreographyScore, 
+        outfit_score: outfitScore
+      }]);
 
       if (error) {
-        alert("Error al enviar el voto: " + error.message);
+        alert("Error al enviar el voto");
+        console.error(error);
       } else {
-        alert("¡Voto registrado!");
+        alert("¡Voto enviado!");
         voteForm.reset();
         loadResults();
       }
     });
 
-    // Cargar resultados en vivo
-    // Cargar resultados en vivo
-async function loadResults() {
-  const { data, error } = await supabase.from("votes").select("*");
+    async function loadResults() {
+      const { data, error } = await supabase.from("votes").select("*");
 
-  if (error) {
-    resultsList.innerHTML = "<li>Error al cargar resultados</li>";
-    console.error(error);
-    return;
-  }
+      if (error) {
+        resultsList.innerHTML = "<li>Error al cargar resultados</li>";
+        console.error(error);
+        return;
+      }
 
-  const scores = {};
+      const scores = {};
 
-  data.forEach(({ country, score }) => {
-    scores[country] = (scores[country] || 0) + score;
-  });
+      data.forEach(({ country, song_score, stage_score, choreography_score, outfit_score }) => {
+        const totalScore = (song_score + stage_score + choreography_score + outfit_score) / 4;
+        scores[country] = (scores[country] || 0) + totalScore;
+      });
 
-  const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+      const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
 
-  resultsList.innerHTML = "";
-  sorted.forEach(([country, total]) => {
-    const li = document.createElement("li");
-
-    // Crear un elemento de imagen con la bandera
-    const flag = document.createElement("span");
-    flag.className = `flag-icon flag-icon-${getCountryCode(country)}`;
-    flag.classList.add("flag-icon");
-
-    // Crear un span para el texto
-    const span = document.createElement("span");
-    span.textContent = `${country}: ${total} punto(s)`;
-
-    li.appendChild(flag);
-    li.appendChild(span);
-    resultsList.appendChild(li);
-  });
-}
-
-// Función para convertir el nombre del país en su código de bandera
-function getCountryCode(country) {
-  const countryCodes = {
-    "Noruega": "no",
-    "Luxemburgo": "lu",
-    "Estonia": "ee",
-    "Israel": "il",
-    "Lituania": "lt",
-    "España": "es",
-    "Ucrania": "ua",
-    "Reino Unido": "gb",
-    "Austria": "at",
-    "Islandia": "is",
-    "Letonia": "lv",
-    "Países Bajos": "nl",
-    "Finlandia": "fi",
-    "Italia": "it",
-    "Polonia": "pl",
-    "Alemania": "de",
-    "Grecia": "gr",
-    "Armenia": "am",
-    "Suiza": "ch",
-    "Malta": "mt",
-    "Portugal": "pt",
-    "Dinamarca": "dk",
-    "Suecia": "se",
-    "Francia": "fr",
-    "San Marino": "sm",
-    "Albania": "al",
-  };
-
-  return countryCodes[country.toUpperCase()] || "unknown";
-}
-
+      resultsList.innerHTML = "";
+      sorted.forEach(([country, total]) => {
+        const li = document.createElement("li");
+        li.textContent = `${country}: ${total.toFixed(2)} punto(s)`;
+        resultsList.appendChild(li);
+      });
+    }
 
     setInterval(loadResults, 5000);
     loadResults();
