@@ -74,7 +74,7 @@ button:hover {
 }
 
 #resultsList li {
-  background-color: #b2a9ef;
+  background-color: ##e3c7e0;
   padding: 15px;
   border: 1px solid #eee;
   margin-bottom: 10px;
@@ -174,4 +174,16 @@ button:hover {
   background-color: #3b29b3;
   color: #fff;
   border-color: #000;
+}
+
+.hidden-average {
+  display: none;
+}
+
+.visible-average {
+  font-size: 4rem; /* Puedes cambiar este tamaño a lo que desees */
+  font-weight: bold;
+  color: #67065c; /* Puedes personalizar el color también */
+  display: block;
+  margin-top: 10px;
 }
