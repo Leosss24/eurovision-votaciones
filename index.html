@@ -8,7 +8,15 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-  <div class="container">
+
+<div id="loginSection">
+  <h2>Ingresa tu nombre para votar</h2>
+  <input type="text" id="loginName" placeholder="Tu nombre" required />
+  <button onclick="login()">Entrar</button>
+</div>
+	
+	
+  <div id="voteSection" style="display: none;">
     <h1>Votaciones Eurovisión 2025</h1>
 
     <form id="voteForm">
@@ -73,73 +81,104 @@
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd3a2t5Y2pjcnNudnJvb3l4eHJsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc0OTczMjYsImV4cCI6MjA2MzA3MzMyNn0.WsQHZdJqu79pHZWoC8Qd-pULhh6534GFBe6blJyXRp4';
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    const voteForm = document.getElementById("voteForm");
-    const resultsList = document.getElementById("resultsList");
+  const voteForm = document.getElementById("voteForm");
+  const resultsList = document.getElementById("resultsList");
+  const voteSection = document.getElementById("voteSection");
+  const loginSection = document.getElementById("loginSection");
 
-    voteForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
+  let userName = localStorage.getItem("eurovisionUser");
 
-      const name = document.getElementById("name").value.trim();
-      const country = document.getElementById("country").value;
-      const songScore = parseInt(document.getElementById("song_score").value);
-      const stageScore = parseInt(document.getElementById("stage_score").value);
-      const choreographyScore = parseInt(document.getElementById("choreography_score").value);
-      const outfitScore = parseInt(document.getElementById("outfit_score").value);
+  function login() {
+    const input = document.getElementById("loginName").value.trim();
+    if (!input) {
+      alert("Introduce tu nombre");
+      return;
+    }
+    userName = input;
+    localStorage.setItem("eurovisionUser", userName);
+    loginSection.style.display = "none";
+    voteSection.style.display = "block";
+  }
 
-      // Verificación de puntuaciones
-      if (!name || !country || isNaN(songScore) || isNaN(stageScore) || isNaN(choreographyScore) || isNaN(outfitScore)) {
-        alert("Datos inválidos");
-        return;
-      }
+  // Mostrar sección de votación si ya ha iniciado sesión
+  if (userName) {
+    loginSection.style.display = "none";
+    voteSection.style.display = "block";
+  }
 
-      // Insertar datos en la base de datos de Supabase
-      const { error } = await supabase.from("votes").insert([{
-        name, 
-        country, 
-        song_score: songScore, 
-        stage_score: stageScore, 
-        choreography_score: choreographyScore, 
-        outfit_score: outfitScore
-      }]);
+  voteForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-      if (error) {
-        alert("Error al enviar el voto");
-        console.error(error);
-      } else {
-        alert("¡Voto enviado!");
-        voteForm.reset();
-        loadResults();
-      }
-    });
+    const country = document.getElementById("country").value;
+    const songScore = parseInt(document.getElementById("song_score").value);
+    const stageScore = parseInt(document.getElementById("stage_score").value);
+    const choreographyScore = parseInt(document.getElementById("choreography_score").value);
+    const outfitScore = parseInt(document.getElementById("outfit_score").value);
 
-    async function loadResults() {
-      const { data, error } = await supabase.from("votes").select("*");
-
-      if (error) {
-        resultsList.innerHTML = "<li>Error al cargar resultados</li>";
-        console.error(error);
-        return;
-      }
-
-      const scores = {};
-
-      data.forEach(({ country, song_score, stage_score, choreography_score, outfit_score }) => {
-        const totalScore = (song_score + stage_score + choreography_score + outfit_score) / 4;
-        scores[country] = (scores[country] || 0) + totalScore;
-      });
-
-      const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
-
-      resultsList.innerHTML = "";
-      sorted.forEach(([country, total]) => {
-        const li = document.createElement("li");
-        li.textContent = `${country}: ${total.toFixed(2)} punto(s)`;
-        resultsList.appendChild(li);
-      });
+    if (!userName || !country || isNaN(songScore) || isNaN(stageScore) || isNaN(choreographyScore) || isNaN(outfitScore)) {
+      alert("Datos inválidos");
+      return;
     }
 
-    setInterval(loadResults, 5000);
-    loadResults();
+    // Evitar votos duplicados por país
+    const { data: existingVote } = await supabase
+      .from("votes")
+      .select("*")
+      .eq("name", userName)
+      .eq("country", country);
+
+    if (existingVote.length > 0) {
+      alert("Ya has votado por este país.");
+      return;
+    }
+
+    const { error } = await supabase.from("votes").insert([{
+      name: userName,
+      country,
+      song_score: songScore,
+      stage_score: stageScore,
+      choreography_score: choreographyScore,
+      outfit_score: outfitScore
+    }]);
+
+    if (error) {
+      alert("Error al enviar el voto");
+      console.error(error);
+    } else {
+      alert("¡Voto enviado!");
+      voteForm.reset();
+      loadResults();
+    }
+  });
+
+  async function loadResults() {
+    const { data, error } = await supabase.from("votes").select("*");
+
+    if (error) {
+      resultsList.innerHTML = "<li>Error al cargar resultados</li>";
+      console.error(error);
+      return;
+    }
+
+    const scores = {};
+
+    data.forEach(({ country, song_score, stage_score, choreography_score, outfit_score }) => {
+      const totalScore = (song_score + stage_score + choreography_score + outfit_score) / 4;
+      scores[country] = (scores[country] || 0) + totalScore;
+    });
+
+    const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+
+    resultsList.innerHTML = "";
+    sorted.forEach(([country, total]) => {
+      const li = document.createElement("li");
+      li.textContent = `${country}: ${total.toFixed(2)} punto(s)`;
+      resultsList.appendChild(li);
+    });
+  }
+
+  setInterval(loadResults, 5000);
+  loadResults();
   </script>
 </body>
 </html>
