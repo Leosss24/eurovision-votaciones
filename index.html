@@ -2,120 +2,120 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Votaciones Eurovisión 2025</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="container">
     <h1>Votaciones Eurovisión 2025</h1>
-    <form action="https://script.google.com/macros/s/AKfycbyku_NQpUshhzOljbRS-0gsEusCxg_rCwVxNp_nV59jcYMMCRouhu4GeLY6NPvehJRoUA/exec" method="POST">
 
-  <label for="name">Tu nombre:</label>
-  <input type="text" id="name" required />
+    <form id="voteForm" action="https://script.google.com/macros/s/AKfycbyku_NQpUshhzOljbRS-0gsEusCxg_rCwVxNp_nV59jcYMMCRouhu4GeLY6NPvehJRoUA/exec" method="POST">
+      <label for="name">Tu nombre:</label>
+      <input type="text" id="name" name="name" required />
 
-  <label for="country">Elige un país:</label>
-  <select id="country" required>
-    <option value="" disabled selected>Selecciona un país</option>
-    <option value="Noruega">Noruega</option>
-    <option value="Luxemburgo">Luxemburgo</option>
-    <option value="Estonia">Estonia</option>
-    <option value="Israel">Israel</option>
-    <option value="Lituania">Lituania</option>
-    <option value="España">España</option>
-    <option value="Ucrania">Ucrania</option>
-    <option value="Reino Unido">Reino Unido</option>
-    <option value="Austria">Austria</option>
-    <option value="Islandia">Islandia</option>
-    <option value="Letonia">Letonia</option>
-    <option value="Países Bajos">Países Bajos</option>
-    <option value="Finlandia">Finlandia</option>
-    <option value="Italia">Italia</option>
-    <option value="Polonia">Polonia</option>
-    <option value="Alemania">Alemania</option>
-    <option value="Grecia">Grecia</option>
-    <option value="Armenia">Armenia</option>
-    <option value="Suiza">Suiza</option>
-    <option value="Malta">Malta</option>
-    <option value="Portugal">Portugal</option>
-    <option value="Dinamarca">Dinamarca</option>
-    <option value="Suecia">Suecia</option>
-    <option value="Francia">Francia</option>
-    <option value="San Marino">San Marino</option>
-    <option value="Albania">Albania</option>
-  </select>
+      <label for="country">Elige un país:</label>
+      <select id="country" name="country" required>
+        <option value="" disabled selected>Selecciona un país</option>
+        <option value="Noruega">Noruega</option>
+        <option value="Luxemburgo">Luxemburgo</option>
+        <option value="Estonia">Estonia</option>
+        <option value="Israel">Israel</option>
+        <option value="Lituania">Lituania</option>
+        <option value="España">España</option>
+        <option value="Ucrania">Ucrania</option>
+        <option value="Reino Unido">Reino Unido</option>
+        <option value="Austria">Austria</option>
+        <option value="Islandia">Islandia</option>
+        <option value="Letonia">Letonia</option>
+        <option value="Países Bajos">Países Bajos</option>
+        <option value="Finlandia">Finlandia</option>
+        <option value="Italia">Italia</option>
+        <option value="Polonia">Polonia</option>
+        <option value="Alemania">Alemania</option>
+        <option value="Grecia">Grecia</option>
+        <option value="Armenia">Armenia</option>
+        <option value="Suiza">Suiza</option>
+        <option value="Malta">Malta</option>
+        <option value="Portugal">Portugal</option>
+        <option value="Dinamarca">Dinamarca</option>
+        <option value="Suecia">Suecia</option>
+        <option value="Francia">Francia</option>
+        <option value="San Marino">San Marino</option>
+        <option value="Albania">Albania</option>
+      </select>
 
-  <label for="score">Puntuación (1 a 5):</label>
-  <input type="number" id="score" min="1" max="5" required />
+      <label for="score">Puntuación (1 a 5):</label>
+      <input type="number" id="score" name="score" min="1" max="5" required />
 
-  <button type="submit">Votar</button>
-</form>
-    
-    
-    
+      <button type="submit">Votar</button>
+    </form>
+
     <h2>Resultados en vivo</h2>
     <ul id="resultsList">Cargando resultados...</ul>
   </div>
 
   <script>
     const voteForm = document.getElementById("voteForm");
-const resultsList = document.getElementById("resultsList");
+    const resultsList = document.getElementById("resultsList");
 
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyku_NQpUshhzOljbRS-0gsEusCxg_rCwVxNp_nV59jcYMMCRouhu4GeLY6NPvehJRoUA/exec";
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyku_NQpUshhzOljbRS-0gsEusCxg_rCwVxNp_nV59jcYMMCRouhu4GeLY6NPvehJRoUA/exec";
 
-voteForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
+    voteForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-  const name = document.getElementById("name").value.trim();
-  const country = document.getElementById("country").value;
-  const score = parseInt(document.getElementById("score").value);
+      const formData = new FormData(voteForm);
 
-  if (!name || !country || isNaN(score) || score < 1 || score > 5) return;
+      try {
+        await fetch(GOOGLE_SCRIPT_URL, {
+          method: "POST",
+          body: formData,
+        });
 
-  const voteData = { name, country, score };
-
-  await fetch(GOOGLE_SCRIPT_URL, {
-    method: "POST",
-    body: JSON.stringify(voteData),
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-
-  voteForm.reset();
-  alert("¡Voto enviado!");
-});
+        voteForm.reset();
+        alert("¡Voto enviado!");
+      } catch (error) {
+        alert("Error al enviar el voto.");
+        console.error(error);
+      }
+    });
 
     async function getResultsFromSheet() {
-  const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTlWW2frQC17TbpRh6jf99xBIaRhEKvLxniz8kEeoLUXLnI4EgFCBug-NM7dOAjSW4b9TJD9llqPbrc/pub?gid=0&single=true&output=csv";
-  const response = await fetch(sheetURL);
-  const text = await response.text();
+      const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTlWW2frQC17TbpRh6jf99xBIaRhEKvLxniz8kEeoLUXLnI4EgFCBug-NM7dOAjSW4b9TJD9llqPbrc/pub?gid=0&single=true&output=csv";
+      try {
+        const response = await fetch(sheetURL);
+        const text = await response.text();
 
-  const lines = text.trim().split("\n").slice(1); // Excluir encabezado
-  const scores = {};
+        const lines = text.trim().split("\n").slice(1); // Excluir encabezado
+        const scores = {};
 
-  for (let line of lines) {
-    const [, country, score] = line.split(",");
-    const cleanCountry = country.trim();
-    const points = parseInt(score);
+        for (let line of lines) {
+          const [, country, score] = line.split(",");
+          const cleanCountry = country.trim();
+          const points = parseInt(score);
 
-    if (!isNaN(points)) {
-      scores[cleanCountry] = (scores[cleanCountry] || 0) + points;
+          if (!isNaN(points)) {
+            scores[cleanCountry] = (scores[cleanCountry] || 0) + points;
+          }
+        }
+
+        const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+
+        resultsList.innerHTML = "";
+        sorted.forEach(([country, totalPoints]) => {
+          const li = document.createElement("li");
+          li.textContent = `${country}: ${totalPoints} punto(s)`;
+          resultsList.appendChild(li);
+        });
+      } catch (error) {
+        resultsList.innerHTML = "<li>Error al cargar resultados.</li>";
+        console.error(error);
+      }
     }
-  }
 
-  const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
-
-  resultsList.innerHTML = "";
-  sorted.forEach(([country, totalPoints]) => {
-    const li = document.createElement("li");
-    li.textContent = `${country}: ${totalPoints} punto(s)`;
-    resultsList.appendChild(li);
-  });
-}
-
-// Actualiza cada 5 segundos
-setInterval(getResultsFromSheet, 5000);
-getResultsFromSheet();
+    // Actualiza cada 5 segundos
+    setInterval(getResultsFromSheet, 5000);
+    getResultsFromSheet();
   </script>
 </body>
 </html>
