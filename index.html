@@ -52,17 +52,31 @@
           <option value="Albania">Albania</option>
         </select>
 
-        <label for="song_score">Puntuación de la Canción (1 a 5):</label>
-        <input type="number" id="song_score" min="1" max="5" required />
+<!-- BLOQUES DE BOTONES -->
+<div class="score-block">
+  <label>Puntuación de la Canción:</label>
+  <div class="score-options" data-score-type="song_score"></div>
+</div>
 
-        <label for="stage_score">Puntuación de la Escenografía (1 a 5):</label>
-        <input type="number" id="stage_score" min="1" max="5" required />
+<div class="score-block">
+  <label>Puntuación de la Escenografía:</label>
+  <div class="score-options" data-score-type="stage_score"></div>
+</div>
 
-        <label for="choreography_score">Puntuación de la Coreografía (1 a 5):</label>
-        <input type="number" id="choreography_score" min="1" max="5" required />
+<div class="score-block">
+  <label>Puntuación de la Coreografía:</label>
+  <div class="score-options" data-score-type="choreography_score"></div>
+</div>
 
-        <label for="outfit_score">Puntuación del Outfit (1 a 5):</label>
-        <input type="number" id="outfit_score" min="1" max="5" required />
+<div class="score-block">
+  <label>Puntuación del Outfit:</label>
+  <div class="score-options" data-score-type="outfit_score"></div>
+</div>
+
+<input type="hidden" id="song_score" name="song_score" required />
+<input type="hidden" id="stage_score" name="stage_score" required />
+<input type="hidden" id="choreography_score" name="choreography_score" required />
+<input type="hidden" id="outfit_score" name="outfit_score" required />
 
         <button type="submit">Votar</button>
       </form>
@@ -209,6 +223,30 @@
         resultsList.appendChild(li);
       });
     }
+
+function createScoreButtons() {
+  const scoreContainers = document.querySelectorAll(".score-options");
+
+  scoreContainers.forEach(container => {
+    const type = container.dataset.scoreType;
+    for (let i = 1; i <= 5; i++) {
+      const btn = document.createElement("button");
+      btn.textContent = i;
+      btn.className = "score-btn";
+      btn.type = "button";
+      btn.addEventListener("click", () => {
+        // Marcar botón activo
+        container.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        // Setear el valor oculto
+        document.getElementById(type).value = i;
+      });
+      container.appendChild(btn);
+    }
+  });
+}
+
+createScoreButtons();
 
     setInterval(loadResults, 5000);
     loadResults();
