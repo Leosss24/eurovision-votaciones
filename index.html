@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Votaciones Eurovisión 2025</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Votaciones Eurovisión 2025</h1>
+    <form id="voteForm">
+      <input type="text" id="name" placeholder="Tu nombre" required />
+      <select id="country" required>
+        <option value="" disabled selected>Selecciona un país</option>
+        <option value="España">España</option>
+        <option value="Suecia">Suecia</option>
+        <option value="Italia">Italia</option>
+        <option value="Francia">Francia</option>
+        <option value="Alemania">Alemania</option>
+        <option value="Noruega">Noruega</option>
+      </select>
+      <button type="submit">Votar</button>
+    </form>
+
+    <h2>Resultados en vivo</h2>
+    <ul id="resultsList">Cargando resultados...</ul>
+  </div>
+
+  <script>
+    const voteForm = document.getElementById("voteForm");
+    const resultsList = document.getElementById("resultsList");
+
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzBNZ1x074LszOoVNIUogeB7Cgv43PiwabwB73HBe2LiFwDby6RIEnQqiFNQpeW2IvQsw/exec";
+
+    voteForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const name = document.getElementById("name").value.trim();
+      const country = document.getElementById("country").value;
+
+      if (!name || !country) return;
+
+      const voteData = { name, country };
+
+      await fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify(voteData),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      voteForm.reset();
+      alert("¡Voto enviado!");
+    });
+
+    async function getResultsFromSheet() {
+      const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTlWW2frQC17TbpRh6jf99xBIaRhEKvLxniz8kEeoLUXLnI4EgFCBug-NM7dOAjSW4b9TJD9llqPbrc/pub?gid=0&single=true&output=csv"; // Lo explico abajo
+      const response = await fetch(sheetURL);
+      const text = await response.text();
+
+      const lines = text.trim().split("\n").slice(1); // Skip headers
+      const counts = {};
+
+      for (let line of lines) {
+        const [name, country] = line.split(",");
+        counts[country] = (counts[country] || 0) + 1;
+      }
+
+      const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+      resultsList.innerHTML = "";
+      sorted.forEach(([country, votes]) => {
+        const li = document.createElement("li");
+        li.textContent = `${country}: ${votes} voto(s)`;
+        resultsList.appendChild(li);
+      });
+    }
+
+    // Actualizar cada 5 segundos
+    setInterval(getResultsFromSheet, 5000);
+    getResultsFromSheet();
+  </script>
+</body>
+</html>
