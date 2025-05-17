@@ -48,6 +48,9 @@
 
   <button type="submit">Votar</button>
 </form>
+    
+    
+    
     <h2>Resultados en vivo</h2>
     <ul id="resultsList">Cargando resultados...</ul>
   </div>
@@ -56,7 +59,7 @@
     const voteForm = document.getElementById("voteForm");
 const resultsList = document.getElementById("resultsList");
 
-const GOOGLE_SCRIPT_URL = "TU_WEBHOOK_GOOGLE_SCRIPT";
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzBNZ1x074LszOoVNIUogeB7Cgv43PiwabwB73HBe2LiFwDby6RIEnQqiFNQpeW2IvQsw/exec";
 
 voteForm.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -80,6 +83,38 @@ voteForm.addEventListener("submit", async (e) => {
   voteForm.reset();
   alert("¡Voto enviado!");
 });
+
+    async function getResultsFromSheet() {
+  const sheetURL = "https://script.google.com/macros/library/d/1O9Z1hbHkI06LsxAt8kgVxzTdN1u7Pxi4s76SzsEkRWpx0K_2Oa5x2RKa/2";
+  const response = await fetch(sheetURL);
+  const text = await response.text();
+
+  const lines = text.trim().split("\n").slice(1); // Excluir encabezado
+  const scores = {};
+
+  for (let line of lines) {
+    const [, country, score] = line.split(",");
+    const cleanCountry = country.trim();
+    const points = parseInt(score);
+
+    if (!isNaN(points)) {
+      scores[cleanCountry] = (scores[cleanCountry] || 0) + points;
+    }
+  }
+
+  const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+
+  resultsList.innerHTML = "";
+  sorted.forEach(([country, totalPoints]) => {
+    const li = document.createElement("li");
+    li.textContent = `${country}: ${totalPoints} punto(s)`;
+    resultsList.appendChild(li);
+  });
+}
+
+// Actualiza cada 5 segundos
+setInterval(getResultsFromSheet, 5000);
+getResultsFromSheet();
   </script>
 </body>
 </html>
