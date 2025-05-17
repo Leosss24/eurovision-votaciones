@@ -67,15 +67,16 @@
       const formData = new FormData(voteForm);
 
       try {
-        await fetch(GOOGLE_SCRIPT_URL, {
+        const response = await fetch(GOOGLE_SCRIPT_URL, {
           method: "POST",
           body: formData,
         });
 
+        const text = await response.text();
+        alert(text || "¡Voto enviado!");
         voteForm.reset();
-        alert("¡Voto enviado!");
       } catch (error) {
-        alert("Error al enviar el voto.");
+        alert("Error al enviar el voto. Inténtalo más tarde.");
         console.error(error);
       }
     });
