@@ -119,6 +119,14 @@ button:hover {
   display: none;
 }
 
+#voteForm {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+}
+
 /* Agregar imágenes de las banderas */
 .flag-icon {
   width: 20px;
