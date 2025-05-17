@@ -24,7 +24,6 @@
         <label for="country">Elige un país:</label>
         <select id="country" name="country" required>
           <option value="" disabled selected>Selecciona un país</option>
-          <!-- Aquí van los países -->
           <option value="Noruega">Noruega</option>
           <option value="Luxemburgo">Luxemburgo</option>
           <option value="Estonia">Estonia</option>
@@ -53,31 +52,31 @@
           <option value="Albania">Albania</option>
         </select>
 
-        <!-- BLOQUES DE BOTONES -->
-        <div class="score-block">
-          <label>🎵 Canción:</label>
-          <div class="score-options" data-score-type="song_score"></div>
-        </div>
+<!-- BLOQUES DE BOTONES -->
+<div class="score-block">
+  <label>🎵 Canción:</label>
+  <div class="score-options" data-score-type="song_score"></div>
+</div>
 
-        <div class="score-block">
-          <label>🎭 Escenografía:</label>
-          <div class="score-options" data-score-type="stage_score"></div>
-        </div>
+<div class="score-block">
+  <label>🎭 Escenografía:</label>
+  <div class="score-options" data-score-type="stage_score"></div>
+</div>
 
-        <div class="score-block">
-          <label>💃 Coreografía:</label>
-          <div class="score-options" data-score-type="choreography_score"></div>
-        </div>
+<div class="score-block">
+  <label>💃 Coreografía:</label>
+  <div class="score-options" data-score-type="choreography_score"></div>
+</div>
 
-        <div class="score-block">
-          <label>👗 Outfit:</label>
-          <div class="score-options" data-score-type="outfit_score"></div>
-        </div>
+<div class="score-block">
+  <label>👗 Outfit:</label>
+  <div class="score-options" data-score-type="outfit_score"></div>
+</div>
 
-        <input type="hidden" id="song_score" name="song_score" required />
-        <input type="hidden" id="stage_score" name="stage_score" required />
-        <input type="hidden" id="choreography_score" name="choreography_score" required />
-        <input type="hidden" id="outfit_score" name="outfit_score" required />
+<input type="hidden" id="song_score" name="song_score" required />
+<input type="hidden" id="stage_score" name="stage_score" required />
+<input type="hidden" id="choreography_score" name="choreography_score" required />
+<input type="hidden" id="outfit_score" name="outfit_score" required />
 
         <button type="submit">Votar</button>
       </form>
@@ -86,10 +85,6 @@
     <!-- RESULTADOS -->
     <h2>Resultados en vivo</h2>
     <ul id="resultsList">Cargando resultados...</ul>
-    <div id="userVoteSection" style="display: none;">
-      <h3>Tu voto:</h3>
-      <ul id="userVoteList"></ul>
-    </div>
   </div>
 
   <script>
@@ -99,10 +94,8 @@
 
     const voteForm = document.getElementById("voteForm");
     const resultsList = document.getElementById("resultsList");
-    const userVoteList = document.getElementById("userVoteList");
     const voteSection = document.getElementById("voteSection");
     const loginSection = document.getElementById("loginSection");
-    const userVoteSection = document.getElementById("userVoteSection");
 
     let userName = localStorage.getItem("eurovisionUser");
 
@@ -163,6 +156,12 @@
       } else {
         alert("¡Voto enviado!");
         voteForm.reset();
+        document.querySelectorAll('.score-btn.active').forEach(btn => btn.classList.remove('active'));
+        document.getElementById("country").value = "";
+        songScore = null;
+        stageScore = null;
+        choreographyScore = null;
+        outfitScore = null;
         loadResults();
       }
     });
@@ -177,10 +176,9 @@
       }
 
       const countryScores = {};
-      let userVote = {};
 
       data.forEach(vote => {
-        const { country, song_score, stage_score, choreography_score, outfit_score, name } = vote;
+        const { country, song_score, stage_score, choreography_score, outfit_score } = vote;
         if (!countryScores[country]) {
           countryScores[country] = {
             totalVotes: 0,
@@ -196,10 +194,6 @@
         countryScores[country].stage += stage_score;
         countryScores[country].choreography += choreography_score;
         countryScores[country].outfit += outfit_score;
-
-        if (name === userName) {
-          userVote = { country, song_score, stage_score, choreography_score, outfit_score };
-        }
       });
 
       const results = Object.entries(countryScores).map(([country, scores]) => {
@@ -224,7 +218,7 @@
       resultsList.innerHTML = "";
       results.forEach(result => {
         const li = document.createElement("li");
-        li.innerHTML = `
+        li.innerHTML = 
           <strong>${result.country}</strong><br />
           🎵 Canción: ${result.avgSong.toFixed(2)}<br />
           🎭 Escenografía: ${result.avgStage.toFixed(2)}<br />
@@ -232,23 +226,34 @@
           👗 Outfit: ${result.avgOutfit.toFixed(2)}<br />
          <span class="hidden-average">${result.average.toFixed(2)}</span>
           <span class="visible-average">${result.average.toFixed(2)}</span>
-        `;
+        ;
         resultsList.appendChild(li);
       });
-
-      if (userVote.country) {
-        userVoteSection.style.display = "block";
-        userVoteList.innerHTML = `
-          <li><strong>${userVote.country}</strong></li>
-          🎵 Canción: ${userVote.song_score}<br />
-          🎭 Escenografía: ${userVote.stage_score}<br />
-          💃 Coreografía: ${userVote.choreography_score}<br />
-          👗 Outfit: ${userVote.outfit_score}<br />
-        `;
-      } else {
-        userVoteSection.style.display = "none";
-      }
     }
+
+function createScoreButtons() {
+  const scoreContainers = document.querySelectorAll(".score-options");
+
+  scoreContainers.forEach(container => {
+    const type = container.dataset.scoreType;
+    for (let i = 1; i <= 5; i++) {
+      const btn = document.createElement("button");
+      btn.textContent = i;
+      btn.className = "score-btn";
+      btn.type = "button";
+      btn.addEventListener("click", () => {
+        // Marcar botón activo
+        container.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        // Setear el valor oculto
+        document.getElementById(type).value = i;
+      });
+      container.appendChild(btn);
+    }
+  });
+}
+
+createScoreButtons();
 
     setInterval(loadResults, 5000);
     loadResults();
