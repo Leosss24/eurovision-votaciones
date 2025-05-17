@@ -8,9 +8,11 @@ body {
 }
 
 .container {
-  width: 90%;
-  max-width: 1200px;
-  margin: 0 auto;
+ display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
   padding: 20px;
   text-align: center;
 }
@@ -68,9 +70,9 @@ button:hover {
 #resultsList {
   list-style: none;
   padding: 0;
-  margin: 0;
-  text-align: left;
-  font-size: 1.1em;
+  margin: 20px 0;
+  width: 100%;
+  max-width: 600px;
 }
 
 #resultsList li {
@@ -116,7 +118,12 @@ button:hover {
 }
 
 #voteSection {
-  display: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 600px;
 }
 
 #voteForm {
