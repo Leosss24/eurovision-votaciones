@@ -127,35 +127,42 @@ button:hover {
 }
 
 .score-block {
-  margin: 20px 0;
-  text-align: center;
+  margin: 10px 0;
+}
+
+.score-block label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 6px;
+  text-align: left;
 }
 
 .score-options {
   display: flex;
-  justify-content: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-top: 10px;
+  justify-content: start;
+  gap: 8px;
+  flex-wrap: nowrap;
 }
 
 .score-btn {
-  font-size: 1.5rem;
-  padding: 15px 25px;
-  border: 2px solid #555;
-  border-radius: 10px;
-  background-color: #f0f0f0;
+  width: 45px;
+  height: 45px;
+  font-size: 1.2rem;
+  padding: 0;
+  border: 2px solid #aaa;
+  border-radius: 6px;
+  background-color: #f4f4f4;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .score-btn:hover {
-  background-color: #e0e0ff;
-  border-color: #333;
+  background-color: #e6e6ff;
+  border-color: #666;
 }
 
 .score-btn.active {
-  background-color: #4e3abf;
-  color: white;
+  background-color: #3b29b3;
+  color: #fff;
   border-color: #000;
 }
