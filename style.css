@@ -125,3 +125,37 @@ button:hover {
   height: 15px;
   margin-right: 10px;
 }
+
+.score-block {
+  margin: 20px 0;
+  text-align: center;
+}
+
+.score-options {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.score-btn {
+  font-size: 1.5rem;
+  padding: 15px 25px;
+  border: 2px solid #555;
+  border-radius: 10px;
+  background-color: #f0f0f0;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.score-btn:hover {
+  background-color: #e0e0ff;
+  border-color: #333;
+}
+
+.score-btn.active {
+  background-color: #4e3abf;
+  color: white;
+  border-color: #000;
+}
