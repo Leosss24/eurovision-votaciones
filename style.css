@@ -1,40 +1,127 @@
+/* General */
 body {
-  font-family: Arial, sans-serif;
-  background: #e9e9f0;
+  font-family: 'Arial', sans-serif;
+  background-color: #f0f0f0;
   color: #333;
-  padding: 20px;
+  margin: 0;
+  padding: 0;
 }
 
 .container {
-  max-width: 600px;
-  margin: auto;
-  background: white;
-  padding: 25px;
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  text-align: center;
+}
+
+h1 {
+  font-size: 3em;
+  color: #003580; /* Color de la UE */
+  margin-bottom: 20px;
+}
+
+h2 {
+  font-size: 2em;
+  color: #003580;
+  margin-top: 40px;
+}
+
+form {
+  background-color: #ffffff;
   border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  padding: 30px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
 }
 
 label {
   display: block;
-  margin-top: 15px;
+  font-size: 1.2em;
+  margin: 10px 0;
 }
 
-input, select, button {
-  width: 100%;
+input, select {
   padding: 10px;
-  margin-top: 5px;
+  width: 100%;
+  font-size: 1.1em;
+  margin-bottom: 20px;
   border-radius: 5px;
   border: 1px solid #ccc;
 }
 
 button {
-  background-color: #0066cc;
+  background-color: #003580; /* Color de la UE */
   color: white;
   border: none;
-  margin-top: 20px;
+  padding: 15px;
+  width: 100%;
+  font-size: 1.2em;
+  border-radius: 5px;
   cursor: pointer;
 }
 
 button:hover {
-  background-color: #004a99;
+  background-color: #0066cc;
+}
+
+#resultsList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  text-align: left;
+  font-size: 1.1em;
+}
+
+#resultsList li {
+  background-color: #ffffff;
+  padding: 15px;
+  border: 1px solid #eee;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+#resultsList li span {
+  font-weight: bold;
+}
+
+/* Sección de login */
+#loginSection {
+  text-align: center;
+  margin-top: 50px;
+}
+
+#loginSection input {
+  padding: 10px;
+  width: 70%;
+  font-size: 1.2em;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+#loginSection button {
+  background-color: #003580;
+  color: white;
+  padding: 10px 20px;
+  font-size: 1.1em;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#loginSection button:hover {
+  background-color: #0066cc;
+}
+
+#voteSection {
+  display: none;
+}
+
+/* Agregar imágenes de las banderas */
+.flag-icon {
+  width: 20px;
+  height: 15px;
+  margin-right: 10px;
 }
