@@ -229,19 +229,6 @@
         `;
         resultsList.appendChild(li);
       });
-
-      if (userVote.country) {
-        userVoteSection.style.display = "block";
-        userVoteList.innerHTML = `
-          <li><strong>${userVote.country}</strong></li>
-          🎵 Canción: ${userVote.song_score}<br />
-          🎭 Escenografía: ${userVote.stage_score}<br />
-          💃 Coreografía: ${userVote.choreography_score}<br />
-          👗 Outfit: ${userVote.outfit_score}<br />
-        `;
-      } else {
-        userVoteSection.style.display = "none";
-      }
       
     }
 
