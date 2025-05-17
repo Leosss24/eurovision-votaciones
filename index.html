@@ -8,24 +8,23 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-
-<div id="loginSection">
-  <h2>Ingresa tu nombre para votar</h2>
-  <input type="text" id="loginName" placeholder="Tu nombre" required />
-  <button onclick="login()">Entrar</button>
-</div>
-	
-	
-  <div id="voteSection" style="display: none;">
+  <div class="container">
     <h1>Votaciones Eurovisión 2025</h1>
 
-    <form id="voteForm">
-      
-      <label for="country">Elige un país:</label>
-      <select id="country" name="country" required>
-        <option value="" disabled selected>Selecciona un país</option>
-        <!-- Aquí van todos los países de Eurovisión -->
-		<option value="Noruega">Noruega</option>
+    <!-- LOGIN -->
+    <div id="loginSection">
+      <h2>Ingresa tu nombre para votar</h2>
+      <input type="text" id="loginName" placeholder="Tu nombre" required />
+      <button onclick="login()">Entrar</button>
+    </div>
+
+    <!-- FORMULARIO DE VOTACIÓN -->
+    <div id="voteSection" style="display: none;">
+      <form id="voteForm">
+        <label for="country">Elige un país:</label>
+        <select id="country" name="country" required>
+          <option value="" disabled selected>Selecciona un país</option>
+          <option value="Noruega">Noruega</option>
           <option value="Luxemburgo">Luxemburgo</option>
           <option value="Estonia">Estonia</option>
           <option value="Israel">Israel</option>
@@ -51,132 +50,168 @@
           <option value="Francia">Francia</option>
           <option value="San Marino">San Marino</option>
           <option value="Albania">Albania</option>
-        <!-- ...otros países... -->
-      </select>
+        </select>
 
-      <label for="song_score">Puntuación de la Canción (1 a 5):</label>
-      <input type="number" id="song_score" name="song_score" min="1" max="5" required />
+        <label for="song_score">Puntuación de la Canción (1 a 5):</label>
+        <input type="number" id="song_score" min="1" max="5" required />
 
-      <label for="stage_score">Puntuación de la Escenografía (1 a 5):</label>
-      <input type="number" id="stage_score" name="stage_score" min="1" max="5" required />
+        <label for="stage_score">Puntuación de la Escenografía (1 a 5):</label>
+        <input type="number" id="stage_score" min="1" max="5" required />
 
-      <label for="choreography_score">Puntuación de la Coreografía (1 a 5):</label>
-      <input type="number" id="choreography_score" name="choreography_score" min="1" max="5" required />
+        <label for="choreography_score">Puntuación de la Coreografía (1 a 5):</label>
+        <input type="number" id="choreography_score" min="1" max="5" required />
 
-      <label for="outfit_score">Puntuación del Outfit (1 a 5):</label>
-      <input type="number" id="outfit_score" name="outfit_score" min="1" max="5" required />
+        <label for="outfit_score">Puntuación del Outfit (1 a 5):</label>
+        <input type="number" id="outfit_score" min="1" max="5" required />
 
-      <button type="submit">Votar</button>
-    </form>
+        <button type="submit">Votar</button>
+      </form>
+    </div>
 
+    <!-- RESULTADOS -->
     <h2>Resultados en vivo</h2>
     <ul id="resultsList">Cargando resultados...</ul>
   </div>
 
   <script>
-    // Configura tus credenciales de Supabase aquí:
     const SUPABASE_URL = 'https://gwkkycjcrsnvrooyxxrl.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd3a2t5Y2pjcnNudnJvb3l4eHJsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc0OTczMjYsImV4cCI6MjA2MzA3MzMyNn0.WsQHZdJqu79pHZWoC8Qd-pULhh6534GFBe6blJyXRp4';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'; // usa tu clave real
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  const voteForm = document.getElementById("voteForm");
-  const resultsList = document.getElementById("resultsList");
-  const voteSection = document.getElementById("voteSection");
-  const loginSection = document.getElementById("loginSection");
+    const voteForm = document.getElementById("voteForm");
+    const resultsList = document.getElementById("resultsList");
+    const voteSection = document.getElementById("voteSection");
+    const loginSection = document.getElementById("loginSection");
 
-  let userName = localStorage.getItem("eurovisionUser");
+    let userName = localStorage.getItem("eurovisionUser");
 
-  function login() {
-    const input = document.getElementById("loginName").value.trim();
-    if (!input) {
-      alert("Introduce tu nombre");
-      return;
-    }
-    userName = input;
-    localStorage.setItem("eurovisionUser", userName);
-    loginSection.style.display = "none";
-    voteSection.style.display = "block";
-  }
-
-  // Mostrar sección de votación si ya ha iniciado sesión
-  if (userName) {
-    loginSection.style.display = "none";
-    voteSection.style.display = "block";
-  }
-
-  voteForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const country = document.getElementById("country").value;
-    const songScore = parseInt(document.getElementById("song_score").value);
-    const stageScore = parseInt(document.getElementById("stage_score").value);
-    const choreographyScore = parseInt(document.getElementById("choreography_score").value);
-    const outfitScore = parseInt(document.getElementById("outfit_score").value);
-
-    if (!userName || !country || isNaN(songScore) || isNaN(stageScore) || isNaN(choreographyScore) || isNaN(outfitScore)) {
-      alert("Datos inválidos");
-      return;
+    function login() {
+      const input = document.getElementById("loginName").value.trim();
+      if (!input) {
+        alert("Introduce tu nombre");
+        return;
+      }
+      userName = input;
+      localStorage.setItem("eurovisionUser", userName);
+      loginSection.style.display = "none";
+      voteSection.style.display = "block";
     }
 
-    // Evitar votos duplicados por país
-    const { data: existingVote } = await supabase
-      .from("votes")
-      .select("*")
-      .eq("name", userName)
-      .eq("country", country);
-
-    if (existingVote.length > 0) {
-      alert("Ya has votado por este país.");
-      return;
+    if (userName) {
+      loginSection.style.display = "none";
+      voteSection.style.display = "block";
     }
 
-    const { error } = await supabase.from("votes").insert([{
-      name: userName,
-      country,
-      song_score: songScore,
-      stage_score: stageScore,
-      choreography_score: choreographyScore,
-      outfit_score: outfitScore
-    }]);
+    voteForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-    if (error) {
-      alert("Error al enviar el voto");
-      console.error(error);
-    } else {
-      alert("¡Voto enviado!");
-      voteForm.reset();
-      loadResults();
-    }
-  });
+      const country = document.getElementById("country").value;
+      const song = parseInt(document.getElementById("song_score").value);
+      const stage = parseInt(document.getElementById("stage_score").value);
+      const choreo = parseInt(document.getElementById("choreography_score").value);
+      const outfit = parseInt(document.getElementById("outfit_score").value);
 
-  async function loadResults() {
-    const { data, error } = await supabase.from("votes").select("*");
+      if (!userName || !country || [song, stage, choreo, outfit].some(v => isNaN(v))) {
+        alert("Datos inválidos");
+        return;
+      }
 
-    if (error) {
-      resultsList.innerHTML = "<li>Error al cargar resultados</li>";
-      console.error(error);
-      return;
-    }
+      const { data: existingVote } = await supabase
+        .from("votes")
+        .select("*")
+        .eq("name", userName)
+        .eq("country", country);
 
-    const scores = {};
+      if (existingVote.length > 0) {
+        alert("Ya has votado por este país.");
+        return;
+      }
 
-    data.forEach(({ country, song_score, stage_score, choreography_score, outfit_score }) => {
-      const totalScore = (song_score + stage_score + choreography_score + outfit_score) / 4;
-      scores[country] = (scores[country] || 0) + totalScore;
+      const { error } = await supabase.from("votes").insert([{
+        name: userName,
+        country,
+        song_score: song,
+        stage_score: stage,
+        choreography_score: choreo,
+        outfit_score: outfit
+      }]);
+
+      if (error) {
+        alert("Error al enviar el voto");
+        console.error(error);
+      } else {
+        alert("¡Voto enviado!");
+        voteForm.reset();
+        loadResults();
+      }
     });
 
-    const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+    async function loadResults() {
+      const { data, error } = await supabase.from("votes").select("*");
 
-    resultsList.innerHTML = "";
-    sorted.forEach(([country, total]) => {
-      const li = document.createElement("li");
-      li.textContent = `${country}: ${total.toFixed(2)} punto(s)`;
-      resultsList.appendChild(li);
-    });
-  }
+      if (error) {
+        resultsList.innerHTML = "<li>Error al cargar resultados</li>";
+        console.error(error);
+        return;
+      }
 
-  setInterval(loadResults, 5000);
-  loadResults();
+      const countryScores = {};
+
+      data.forEach(vote => {
+        const { country, song_score, stage_score, choreography_score, outfit_score } = vote;
+        if (!countryScores[country]) {
+          countryScores[country] = {
+            totalVotes: 0,
+            song: 0,
+            stage: 0,
+            choreography: 0,
+            outfit: 0
+          };
+        }
+
+        countryScores[country].totalVotes += 1;
+        countryScores[country].song += song_score;
+        countryScores[country].stage += stage_score;
+        countryScores[country].choreography += choreography_score;
+        countryScores[country].outfit += outfit_score;
+      });
+
+      const results = Object.entries(countryScores).map(([country, scores]) => {
+        const avgSong = scores.song / scores.totalVotes;
+        const avgStage = scores.stage / scores.totalVotes;
+        const avgChoreo = scores.choreography / scores.totalVotes;
+        const avgOutfit = scores.outfit / scores.totalVotes;
+        const average = (avgSong + avgStage + avgChoreo + avgOutfit) / 4;
+
+        return {
+          country,
+          avgSong,
+          avgStage,
+          avgChoreo,
+          avgOutfit,
+          average
+        };
+      });
+
+      results.sort((a, b) => b.average - a.average);
+
+      resultsList.innerHTML = "";
+      results.forEach(result => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+          <strong>${result.country}</strong><br />
+          🎵 Canción: ${result.avgSong.toFixed(2)}<br />
+          🎭 Escenografía: ${result.avgStage.toFixed(2)}<br />
+          💃 Coreografía: ${result.avgChoreo.toFixed(2)}<br />
+          👗 Outfit: ${result.avgOutfit.toFixed(2)}<br />
+          ⭐ Media total: <strong>${result.average.toFixed(2)}</strong>
+        `;
+        resultsList.appendChild(li);
+      });
+    }
+
+    setInterval(loadResults, 5000);
+    loadResults();
   </script>
 </body>
 </html>
