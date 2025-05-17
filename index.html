@@ -54,56 +54,32 @@
 
   <script>
     const voteForm = document.getElementById("voteForm");
-    const resultsList = document.getElementById("resultsList");
+const resultsList = document.getElementById("resultsList");
 
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzBNZ1x074LszOoVNIUogeB7Cgv43PiwabwB73HBe2LiFwDby6RIEnQqiFNQpeW2IvQsw/exec";
+const GOOGLE_SCRIPT_URL = "TU_WEBHOOK_GOOGLE_SCRIPT";
 
-    voteForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const name = document.getElementById("name").value.trim();
-      const country = document.getElementById("country").value;
+voteForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
 
-      if (!name || !country) return;
+  const name = document.getElementById("name").value.trim();
+  const country = document.getElementById("country").value;
+  const score = parseInt(document.getElementById("score").value);
 
-      const voteData = { name, country };
+  if (!name || !country || isNaN(score) || score < 1 || score > 5) return;
 
-      await fetch(GOOGLE_SCRIPT_URL, {
-        method: "POST",
-        body: JSON.stringify(voteData),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+  const voteData = { name, country, score };
 
-      voteForm.reset();
-      alert("¡Voto enviado!");
-    });
+  await fetch(GOOGLE_SCRIPT_URL, {
+    method: "POST",
+    body: JSON.stringify(voteData),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
 
-    async function getResultsFromSheet() {
-      const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTlWW2frQC17TbpRh6jf99xBIaRhEKvLxniz8kEeoLUXLnI4EgFCBug-NM7dOAjSW4b9TJD9llqPbrc/pub?gid=0&single=true&output=csv"; // Lo explico abajo
-      const response = await fetch(sheetURL);
-      const text = await response.text();
-
-      const lines = text.trim().split("\n").slice(1); // Skip headers
-      const counts = {};
-
-      for (let line of lines) {
-        const [name, country] = line.split(",");
-        counts[country] = (counts[country] || 0) + 1;
-      }
-
-      const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
-      resultsList.innerHTML = "";
-      sorted.forEach(([country, votes]) => {
-        const li = document.createElement("li");
-        li.textContent = `${country}: ${votes} voto(s)`;
-        resultsList.appendChild(li);
-      });
-    }
-
-    // Actualizar cada 5 segundos
-    setInterval(getResultsFromSheet, 5000);
-    getResultsFromSheet();
+  voteForm.reset();
+  alert("¡Voto enviado!");
+});
   </script>
 </body>
 </html>
