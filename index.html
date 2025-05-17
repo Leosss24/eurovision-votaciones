@@ -85,7 +85,7 @@ voteForm.addEventListener("submit", async (e) => {
 });
 
     async function getResultsFromSheet() {
-  const sheetURL = "https://docs.google.com/spreadsheets/d/1Dt0yOJNl0523Dq1vw8JjNdcwlol3VMtzW4HBcIrrMhg/edit?hl=es&gid=0#gid=0";
+  const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTlWW2frQC17TbpRh6jf99xBIaRhEKvLxniz8kEeoLUXLnI4EgFCBug-NM7dOAjSW4b9TJD9llqPbrc/pub?gid=0&single=true&output=csv";
   const response = await fetch(sheetURL);
   const text = await response.text();
 
