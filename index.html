@@ -156,6 +156,12 @@
       } else {
         alert("¡Voto enviado!");
         voteForm.reset();
+        document.querySelectorAll('.score-btn.active').forEach(btn => btn.classList.remove('active'));
+        document.getElementById("country").value = "";
+        songScore = null;
+        stageScore = null;
+        choreographyScore = null;
+        outfitScore = null;
         loadResults();
       }
     });
