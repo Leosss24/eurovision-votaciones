@@ -11,46 +11,53 @@
   <div class="container">
     <h1>Votaciones Eurovisión 2025</h1>
 
-    <form id="voteForm">
-      <label for="name">Tu nombre:</label>
-      <input type="text" id="name" name="name" required />
+    <!-- Sección de login -->
+    <div id="loginSection">
+      <h2>Introduce tu nombre</h2>
+      <input type="text" id="name" placeholder="Tu nombre" required />
+      <button id="loginBtn">Iniciar sesión</button>
+    </div>
 
-      <label for="country">Elige un país:</label>
-      <select id="country" name="country" required>
-        <option value="" disabled selected>Selecciona un país</option>
-        <option value="Noruega">Noruega</option>
-        <option value="Luxemburgo">Luxemburgo</option>
-        <option value="Estonia">Estonia</option>
-        <option value="Israel">Israel</option>
-        <option value="Lituania">Lituania</option>
-        <option value="España">España</option>
-        <option value="Ucrania">Ucrania</option>
-        <option value="Reino Unido">Reino Unido</option>
-        <option value="Austria">Austria</option>
-        <option value="Islandia">Islandia</option>
-        <option value="Letonia">Letonia</option>
-        <option value="Países Bajos">Países Bajos</option>
-        <option value="Finlandia">Finlandia</option>
-        <option value="Italia">Italia</option>
-        <option value="Polonia">Polonia</option>
-        <option value="Alemania">Alemania</option>
-        <option value="Grecia">Grecia</option>
-        <option value="Armenia">Armenia</option>
-        <option value="Suiza">Suiza</option>
-        <option value="Malta">Malta</option>
-        <option value="Portugal">Portugal</option>
-        <option value="Dinamarca">Dinamarca</option>
-        <option value="Suecia">Suecia</option>
-        <option value="Francia">Francia</option>
-        <option value="San Marino">San Marino</option>
-        <option value="Albania">Albania</option>
-      </select>
+    <!-- Sección de votación -->
+    <div id="voteSection" style="display:none;">
+      <form id="voteForm">
+        <label for="country">Elige un país:</label>
+        <select id="country" name="country" required>
+          <option value="" disabled selected>Selecciona un país</option>
+          <option value="Noruega">Noruega</option>
+          <option value="Luxemburgo">Luxemburgo</option>
+          <option value="Estonia">Estonia</option>
+          <option value="Israel">Israel</option>
+          <option value="Lituania">Lituania</option>
+          <option value="España">España</option>
+          <option value="Ucrania">Ucrania</option>
+          <option value="Reino Unido">Reino Unido</option>
+          <option value="Austria">Austria</option>
+          <option value="Islandia">Islandia</option>
+          <option value="Letonia">Letonia</option>
+          <option value="Países Bajos">Países Bajos</option>
+          <option value="Finlandia">Finlandia</option>
+          <option value="Italia">Italia</option>
+          <option value="Polonia">Polonia</option>
+          <option value="Alemania">Alemania</option>
+          <option value="Grecia">Grecia</option>
+          <option value="Armenia">Armenia</option>
+          <option value="Suiza">Suiza</option>
+          <option value="Malta">Malta</option>
+          <option value="Portugal">Portugal</option>
+          <option value="Dinamarca">Dinamarca</option>
+          <option value="Suecia">Suecia</option>
+          <option value="Francia">Francia</option>
+          <option value="San Marino">San Marino</option>
+          <option value="Albania">Albania</option>
+        </select>
 
-      <label for="score">Puntuación (1 a 5):</label>
-      <input type="number" id="score" name="score" min="1" max="5" required />
+        <label for="score">Puntuación (1 a 5):</label>
+        <input type="number" id="score" name="score" min="1" max="5" required />
 
-      <button type="submit">Votar</button>
-    </form>
+        <button type="submit">Votar</button>
+      </form>
+    </div>
 
     <h2>Resultados en vivo</h2>
     <ul id="resultsList">Cargando resultados...</ul>
@@ -64,33 +71,73 @@
 
     const voteForm = document.getElementById("voteForm");
     const resultsList = document.getElementById("resultsList");
+    const loginBtn = document.getElementById("loginBtn");
+    const loginSection = document.getElementById("loginSection");
+    const voteSection = document.getElementById("voteSection");
 
-    voteForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
+    let currentUser = null;
 
+    // Manejo de login (inicio de sesión por nombre)
+    loginBtn.addEventListener("click", async () => {
       const name = document.getElementById("name").value.trim();
-      const country = document.getElementById("country").value;
-      const score = parseInt(document.getElementById("score").value);
-
-      if (!name || !country || isNaN(score) || score < 1 || score > 5) {
-        alert("Datos inválidos");
+      if (!name) {
+        alert("Por favor, introduce tu nombre.");
         return;
       }
 
+      currentUser = { name };
+
+      // Ocultar la sección de login y mostrar la de votación
+      loginSection.style.display = "none";
+      voteSection.style.display = "block";
+
+      loadResults();
+    });
+
+    // Enviar voto
+    voteForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      if (!currentUser) {
+        alert("Debes iniciar sesión.");
+        return;
+      }
+
+      const country = document.getElementById("country").value;
+      const score = parseInt(document.getElementById("score").value);
+
+      // Verificar si el usuario ya votó por ese país
+      const { data: existingVotes, error: selectError } = await supabase
+        .from("votes")
+        .select("*")
+        .eq("name", currentUser.name)
+        .eq("country", country);
+
+      if (selectError) {
+        alert("Error al verificar votos anteriores.");
+        return;
+      }
+
+      if (existingVotes.length > 0) {
+        alert("Ya has votado por este país.");
+        return;
+      }
+
+      // Insertar el nuevo voto
       const { error } = await supabase.from("votes").insert([
-        { name, country, score }
+        { name: currentUser.name, country, score }
       ]);
 
       if (error) {
-        alert("Error al enviar el voto");
-        console.error(error);
+        alert("Error al enviar el voto: " + error.message);
       } else {
-        alert("¡Voto enviado!");
+        alert("¡Voto registrado!");
         voteForm.reset();
         loadResults();
       }
     });
 
+    // Cargar resultados en vivo
     async function loadResults() {
       const { data, error } = await supabase.from("votes").select("*");
 
